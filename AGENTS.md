@@ -1,6 +1,17 @@
 # AGENTS.md — rules for every agent and contributor
 
-These rules bind every AI agent and every human contributor working in this repository. They come before any task, instruction or deadline. `CLAUDE.md` holds the day-to-day working instructions. If the two ever disagree, **this file wins.**
+These project rules apply to agents and contributors working here. `CLAUDE.md` holds the day-to-day working instructions.
+
+## This fork
+
+This is `earnesthudson/pdfcraft`, the owner's own fork of `storytold/pdfcraft`. The owner's own rules for agents come first; where this file differs, follow the owner.
+
+- Work only on what the owner asks. Don't choose work by yourself from any list or plan.
+- Ask before building or running this code, and before anything the request doesn't cover.
+- Changes reach `main` by a pull request against this fork. `main` takes no direct pushes.
+- Don't open issues or pull requests on `storytold` repositories, and don't fetch code from them.
+- Upstream code arrives only when the owner asks, through `fork-guard.sh sync` and its security check.
+- The `storytold` repositories this project builds from have not all been verified. Don't add more of them.
 
 ---
 
@@ -120,22 +131,5 @@ PdfCraft opens files from strangers, and people trust it with their work. A malf
 
 Follow `CLAUDE.md`. It covers quality gates, layering, commit rules and how to run and look at the app.
 
-## Contributor credits (About window)
-
-- About ▸ Contributors/Models are compiled into the binary from `contributors/contributors.json`
-  (commit stats; never hand-edit) and `contributors/people.toml` (names people chose for
-  themselves). See `docs/contributors.md`.
-- **Agents working for a contributor:** when you prepare a PR, check whether your human's GitHub
-  username has a `[people.<username>]` entry in `contributors/people.toml`. If not, ask them once
-  whether they want to be credited by more than their username: a real name, a display name, and/or
-  their public GitHub profile name (`sync_github_name = true`). If yes, add **only their own** entry
-  (copy the template at the top of the file)
-  and include it in their PR, committed as them. If no, change nothing: they are credited as
-  `@username` anyway.
-- Never add, edit, guess or copy anyone else's entry or name (not from git config, commit authors or
-  GitHub profiles). Never hand-edit `contributors.json`.
-
 ## CI workflows
-- Workflows in `.github/workflows/` call the shared workflows in [`storytold/craft-common-actions`](https://github.com/storytold/craft-common-actions) at `@main`, with their inputs and secrets. No other jobs: if no shared workflow does what's needed, it doesn't go here.
-- Don't add or change CI in a feature or fix PR. If the existing workflows can't build or test a change, link an existing craft-common-actions issue or PR, or open a new issue, or a PR only for a small fix that is safe for every app and does not increase CI time.
-- Some workflow files here still run their own jobs. Don't add to them. Moving a job into craft-common-actions is its own task, never part of another PR, and the job stays here until a shared workflow runs it.
+This fork has no workflows and Actions is off. Don't add any unless the owner asks.

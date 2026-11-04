@@ -2,18 +2,20 @@
 
 PdfCraft is a clean-room, open-source, Rust-native PDF application targeting Adobe Acrobat Pro parity. It runs natively on macOS, Windows, Linux and FreeBSD, and on the web via WASM. It is the sibling of `../photocraft` (a Photoshop-class editor) and follows the same conventions.
 
-## Start every session here
-1. Read `plan/STATUS.md`: the current milestone, the next unchecked task and any blockers. `ROADMAP.md` is the one-page summary (stage, numbers, progress log) and `docs/roadmap.md` the milestone table; at the end of every session update the milestone row and add a line to the ROADMAP.md progress log.
-   - Read `docs/gaps.md` (the ranked gaps: Acrobat interop, the open-issue backlog, the renderer and a fidelity harness, editing existing content, Pro workflows, 1.0 polish) and `docs/target-app-parity.md` (the numbers and how they are measured) before choosing work. Prefer the gaps over new P2/P3 features, and keep both documents true when things change (`docs/` progress docs carry a status line and a revision history).
-   - "Shipped" in `parity/` means "exists and tested", not "as good as Acrobat". Don't mark a feature shipped on a generic test, and say in its notes what is still missing.
-2. Read that task in `plan/execution-plan.md` §3, the relevant section of `plan/architecture.md`, and the README of the crate you're touching.
-3. Follow the **autonomous operation protocol** in `plan/execution-plan.md` §7 (orient → plan → implement + test → verify → record → commit). Don't stop to ask unless §7 lists the decision as the user's.
+## This fork
 
-`plan/` is gitignored (local-only, like PhotoCraft). The machine-readable parity checklist lives in `parity/` (committed).
+This is `earnesthudson/pdfcraft`, the owner's own fork of `storytold/pdfcraft`. The owner's own rules for agents come first; where this file differs, follow the owner.
+
+- Work only on what the owner asks. Don't choose work by yourself from any list or plan.
+- Ask before building or running this code, and before anything the request doesn't cover.
+- Changes reach `main` by a pull request against this fork. `main` takes no direct pushes.
+- Don't open issues or pull requests on `storytold` repositories, and don't fetch code from them.
+- Upstream code arrives only when the owner asks, through `fork-guard.sh sync` and its security check.
+- The `storytold` repositories this project builds from have not all been verified. Don't add more of them.
 
 ## Non-negotiables
 - **Assets: read `AGENTS.md` §1 before adding or showing any icon, image, font or document.** No assets from Adobe products, ever. Only openly licensed or contributor-original assets are allowed, each with an entry in `ATTRIBUTION.toml`. `cargo xtask assets` enforces this. `AGENTS.md` overrides this file.
-- **Fonts live in [storytold/craft-fonts](https://github.com/storytold/craft-fonts).** Never commit font files here (`AGENTS.md` §1.4). It is the optional build input `CRAFT_FONTS_DIR`: `git clone https://github.com/storytold/craft-fonts ../craft-fonts && CRAFT_FONTS_DIR=../craft-fonts cargo test --workspace` embeds the Japanese fonts (UI fallback, Japanese text in edited PDFs) and runs their tests, which otherwise skip. Code using `pdfcraft_fonts::CRAFT_FONTS` must work when it is empty.
+- **Fonts live in [storytold/craft-fonts](https://github.com/storytold/craft-fonts).** Never commit font files here (`AGENTS.md` §1.4). It is the optional build input `CRAFT_FONTS_DIR`: `CRAFT_FONTS_DIR=<checkout>`, with a checkout the owner has approved, embeds the Japanese fonts (UI fallback, Japanese text in edited PDFs) and runs their tests, which otherwise skip. Code using `pdfcraft_fonts::CRAFT_FONTS` must work when it is empty.
 - **Clean-room.**
   - Never read, disassemble or copy anything inside the Acrobat bundle (names and listings only). **Never open `Contents/Resources/JavaScripts/`.**
   - Behaviour comes from public docs, specs (ISO 32000-2, the Arlington model) and black-box observation (`plan/acrobat/`).
@@ -43,9 +45,7 @@ PdfCraft is a clean-room, open-source, Rust-native PDF application targeting Ado
 - **Quality gates** before every commit: `cargo fmt --check`, clippy with `-D warnings`, the tests, `cargo xtask layers`, `cargo xtask assets`, and the wasm check once `xtask ci` exists (M0).
   - New workspace crates must include `[lints] workspace = true` in `Cargo.toml` to inherit `[workspace.lints]`. Production crate roots must declare the required crate-level lint attributes before modules or other crate items; crate-level `//!` documentation may precede them.
   - **Scope builds and tests to the crates you touched** — `cargo clippy -p <crate> -j 2 --all-targets` and `cargo test -p <crate> -j 2`, under a `timeout`. A full `--workspace` build has locked up a development machine's CPU; it is CI's job and CI runs it on every PR. Run the workspace sweep locally only when you have a reason to and the machine is free.
-- **Check for existing work before starting a fix or feature.** Search the issues and PRs, open and closed, with `gh issue list -R storytold/pdfcraft --state all --search "<terms>"` and the same with `gh pr list` (try a few phrasings), and check whether a merged fix is already on `main` (`git merge-base --is-ancestor <commit> origin/main`). If one is, the report is likely from an older build: say so rather than fixing it again. If an open PR covers it, review or build on that PR instead of opening a competing one. If an issue exists, reference it in the PR (`Fixes #123`).
-- **Commits and PRs:** `main` is the only integration branch and is **never pushed to directly**. Branch from an up-to-date `main` as `<type>/<slug>` (`feat/`, `fix/`, `docs/`, `chore/`, `refactor/`), one task id per commit (e.g. `M1.4: xref stream reader`), commit only green states, and open a PR into `main` using `.github/pull_request_template.md`. Merge only when CI is green.
-  - **`main` moves fast enough that PRs rot.** It took 396 commits in the three days to 2026-10-12, and most open PRs are conflicting at any given time. Rebase your own branch the same day `main` moves under it, and ask the author to rebase theirs — never rewrite a contributor's branch. Conflict risk tracks how *contested* the files are, not how large the change is: tooling, tests and docs are nearly free, while `crates/fonts`, `ui-egui` and the i18n catalogues are where several people collide at once.
+- **Commits and PRs:** `main` is never pushed to directly. Branch from `main`, commit only green states, and open a pull request against `main` of this fork.
 
 ## Running and looking at the app
 - `cargo run -p pdfcraft -- <file.pdf>` opens the desktop app.
@@ -60,6 +60,4 @@ PdfCraft is a clean-room, open-source, Rust-native PDF application targeting Ado
 - `pdfcraft-render` renders through the `hayro` crate directly and inspects documents through `lopdf`. Both get replaced by `cos` / `model` / the DisplayList device (M1–M2, ADR-0004).
 
 ## CI workflows
-- Workflows in `.github/workflows/` call the shared workflows in [`storytold/craft-common-actions`](https://github.com/storytold/craft-common-actions) at `@main`, with their inputs and secrets. No other jobs: if no shared workflow does what's needed, it doesn't go here.
-- Don't add or change CI in a feature or fix PR. If the existing workflows can't build or test a change, link an existing craft-common-actions issue or PR, or open a new issue, or a PR only for a small fix that is safe for every app and does not increase CI time.
-- Some workflow files here still run their own jobs. Don't add to them. Moving a job into craft-common-actions is its own task, never part of another PR, and the job stays here until a shared workflow runs it.
+This fork has no workflows and Actions is off. Don't add any unless the owner asks.
